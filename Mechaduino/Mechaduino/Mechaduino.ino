@@ -60,14 +60,14 @@ void setup()        // This code runs once at startup
   setupPins();                      // configure pins
   setupTCInterrupts();              // configure controller interrupt
 
-  SerialUSB.begin(921600);          
-  Serial.setTimeout(5000); // For UMDreadSerialInput(), timeout = 5000 ms
+  SerialUSB.begin(921600);  
   delay(3000);                      // This delay seems to make it easier to establish a connection when the Mechaduino is configured to start in closed loop mode.  
   //serialMenu();                     // Prints menu to serial monitor
   //setupSPI();                       // Sets up SPI for communicating with encoder
   setupSPIWithoutPrint();
   digitalWrite(ledPin,LOW);         // turn LED off 
   
+  UMDsetup();
 
   // Uncomment the below lines as needed for your application.
   // Leave commented for initial calibration and tuning.
@@ -88,7 +88,6 @@ void setup()        // This code runs once at startup
 
 void loop()                 // main loop
 {
-
   //serialCheck();              //must have this execute in loop for serial commands to function
   UMDserialCheck();
 

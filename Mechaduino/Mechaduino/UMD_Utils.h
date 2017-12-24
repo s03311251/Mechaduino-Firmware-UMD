@@ -11,6 +11,7 @@ struct StepperMsg {
 
 void setupSPIWithoutPrint();
 
+void UMDsetup();
 uint8_t UMDcalculateChecksum(uint8_t stepper_msg_bytearray[]);
 void UMDserialCheck();
 bool UMDreadSerialInput(StepperMsg* stepper_msg);

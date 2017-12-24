@@ -14,6 +14,13 @@ void setupSPIWithoutPrint() {
   SPI.beginTransaction(settingsA);
 }
 
+void UMDsetup() {
+  Serial.setTimeout(5000); // For UMDreadSerialInput(), timeout = 5000 ms
+  mode = 'x'; //position loop
+  enableTCInterrupts(); //enable closed loop
+  r = 0.0;
+}
+
 uint8_t UMDcalculateChecksum(uint8_t stepper_msg_bytearray[]) {
   uint8_t checksum = 0xaa ^ 0x4a; // they are the heading in the message
   for (int i = 0; i < TXLEN - 1; i++) {
@@ -23,18 +30,19 @@ uint8_t UMDcalculateChecksum(uint8_t stepper_msg_bytearray[]) {
 }
 
 void UMDserialCheck(){
-  //SerialUSB.println("Hello, World!");
-
   StepperMsg stepper_msg;
   if (UMDreadSerialInput(&stepper_msg)==1) { // checksum correct
+    SerialUSB.write(0x01);
+    SerialUSB.write(0x4A);
     UMDinterpretInput(stepper_msg);
   }
   
-  //while (SerialUSB.available() <= 0);
-  //uint8_t rxdata = SerialUSB.read();
-  //SerialUSB.write(rxdata);
-  //SerialUSB.println((int)rxdata);
-  SerialUSB.write((uint8_t)stepper_msg.flag_period);
+  /*while (SerialUSB.available() <= 0);
+  uint8_t rxdata = SerialUSB.read();
+  SerialUSB.write(rxdata);
+  SerialUSB.println((int)rxdata);*/
+  
+  /*SerialUSB.write((uint8_t)stepper_msg.flag_period);
   SerialUSB.write((uint8_t)stepper_msg.flag_disable);
   SerialUSB.write((uint8_t)stepper_msg.flag_reverse);
   SerialUSB.write((uint8_t)stepper_msg.stepper_id);
@@ -42,9 +50,9 @@ void UMDserialCheck(){
   uint8_t mybyte0 = myint%256;
   uint8_t mybyte1 = myint/256;
   SerialUSB.write(mybyte0);
-  SerialUSB.write(mybyte1);
+  SerialUSB.write(mybyte1);*/
 
-  delay(1000);
+  delay(100);
 }
 
 bool UMDreadSerialInput(StepperMsg* stepper_msg) {
@@ -73,10 +81,14 @@ bool UMDreadSerialInput(StepperMsg* stepper_msg) {
 }
 
 void UMDinterpretInput(StepperMsg stepper_msg) {
-  dir = stepper_msg.flag_reverse;
+  //dir = stepper_msg.flag_reverse;
   int num = stepper_msg.num;
-  for (int i=0;i<stepper_msg.num;i++)
-    oneStep();
+  if (stepper_msg.flag_reverse)
+    r += (float)num;
+   else
+    r -= (float)num;
+  //for (int i=0;i<stepper_msg.num;i++)
+  //  oneStep();
   // stepper_msg.stepper_id no use
   // stepper_msg.flag_period not implemented yet
 }
